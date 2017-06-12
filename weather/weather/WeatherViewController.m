@@ -30,7 +30,7 @@
 }
 -(void)viewDidAppear:(BOOL)animated
 {
-    NSString *urlString = @"http://www.weather.com.cn/data/cityinfo/101020100.html";
+   
     UIButton *refreshBtn = [[UIButton alloc] initWithFrame: CGRectMake(100, 300, 100, 100)];
 
     [refreshBtn setTitle:@"Refresh" forState:UIControlStateNormal];
@@ -66,10 +66,8 @@
 -(void)callJson:(NSString *)urlString
 {
     NSError *error;
-//    NSString *urlString = @"http://www.weather.com.cn/data/cityinfo/101010100.html";
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
-//    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:urlString]];
     
     NSData *response = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
     
@@ -84,18 +82,11 @@
 
 -(void)citySelect:(NSDictionary *)dic
 {
-    self.cityLable.text = [dic objectForKey:@"city"];
-    self.weatherLable.text = [dic objectForKey:@"weather"];
-    self.cityTemp.text = [dic objectForKey:@"temp1"];
-
+    NSString *cityID = [dic objectForKey:@"cityid"];
+    NSString *cityInfo = [[NSString alloc]initWithFormat:@"http://www.weather.com.cn/data/cityinfo/%@.html",cityID];
+    [self callJson:cityInfo];
     NSLog(@"dic = %@",dic);
 }
-
-//-(IBAction)json:(id)sender{
-//    
-//    [self callJson];
-//    
-//}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

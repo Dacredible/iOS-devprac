@@ -132,6 +132,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="City List" id="DvU-yM-TAp"/>
                     <connections>
+                        <outlet property="citySearch" destination="fq7-HS-ntO" id="93M-jB-veo"/>
                         <outlet property="citylist" destination="loV-8q-d1N" id="P4V-sq-Pdz"/>
                     </connections>
                 </viewController>

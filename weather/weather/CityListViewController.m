@@ -11,6 +11,7 @@
 @interface CityListViewController ()
 
 @property (strong,nonatomic) IBOutlet UITableView *citylist;
+@property (strong, nonatomic) IBOutlet UISearchBar *citySearch;
 
 @end
 
@@ -22,10 +23,10 @@
     _citylist.dataSource = self;
     
     
-    NSArray *array = [[NSArray alloc]initWithObjects:@{@"city":@"北京",@"cityid":@"101010100",@"weather":@"晴",@"temp1":@"25"},
-                      @{@"city":@"西安",@"cityid":@"101110101",@"weather":@"雨",@"temp1":@"17"},
-                      @{@"city":@"上海",@"cityid":@"101020100",@"weather":@"晴",@"temp1":@"27"},
-                      @{@"city":@"南京",@"cityid":@"101190101",@"weather":@"阴",@"temp1":@"22"},
+    NSArray *array = [[NSArray alloc]initWithObjects:@{@"city":@"北京",@"cityid":@"101010100"},
+                      @{@"city":@"西安",@"cityid":@"101110101"},
+                      @{@"city":@"上海",@"cityid":@"101020100"},
+                      @{@"city":@"南京",@"cityid":@"101190101"},
                       nil];
     
     self.listData = array;

@@ -61,7 +61,9 @@
     NSString *idForCity = [[self.listData objectAtIndex:indexPath.row] objectForKey:@"cityid"];
     NSLog(@"%@",idForCity);
     [_cityDelegate citySelect:[self.listData objectAtIndex:indexPath.row] ];
+    [self.navigationController popViewControllerAnimated:YES];
 }
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

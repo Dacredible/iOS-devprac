@@ -7,57 +7,93 @@
 //
 
 #import "CityListViewController.h"
-
+#import "MySearchResultViewController.h"
 @interface CityListViewController ()
 
-@property (strong,nonatomic) IBOutlet UITableView *citylist;
-@property (strong, nonatomic) IBOutlet UISearchBar *citySearch;
-
+@property (strong,nonatomic) IBOutlet UITableView *cityList;
+@property (strong,nonatomic) UISearchController *displayer;
+@property (strong,nonatomic) MySearchResultViewController *mySearchResult;
+@property (nonatomic) float widtheOfView;
+@property (nonatomic) NSArray *array;
 @end
-
+static NSString *simpleTableIdentifier = @"SimpleTableIdentifier";
 @implementation CityListViewController
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    _citylist.delegate = self;
-    _citylist.dataSource = self;
+    
+    self.title = @"UISearchController";
+    self.cityList = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    _cityList.delegate = self;
+    _cityList.dataSource = self;
+    [self.view addSubview:self.cityList];
+    [self.cityList registerClass:[UITableViewCell class] forCellReuseIdentifier:simpleTableIdentifier];
+    
+    float widthOfView = self.view.frame.size.width;
+    self.listData = [self getDataArray];
+    
+    _mySearchResult = [[MySearchResultViewController alloc]init];
+    _mySearchResult.mainSearchController = self;
     
     
-    NSArray *array = [[NSArray alloc]initWithObjects:@{@"city":@"北京",@"cityid":@"101010100"},
-                      @{@"city":@"西安",@"cityid":@"101110101"},
-                      @{@"city":@"上海",@"cityid":@"101020100"},
-                      @{@"city":@"南京",@"cityid":@"101190101"},
-                      nil];
+    _mySearchResult.citySelect = [self.navigationController.viewControllers firstObject];
+    _displayer = [[UISearchController alloc]initWithSearchResultsController:_mySearchResult];
     
-    self.listData = array;
+    [_displayer.searchBar sizeToFit];
+    _cityList.tableHeaderView = _displayer.searchBar;
     
+    _displayer.searchResultsUpdater = self;
+    _displayer.searchBar.delegate = self;
+    self.definesPresentationContext = YES;//北
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(pop) name:@"pop" object:nil];
 }
 
+- (void)pop{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark - getData
+
+- (NSArray *)getDataArray
+{
+    NSMutableArray *resultArray;
+    NSArray *array = [[NSArray alloc]initWithObjects:@{@"cityname":@"北京",@"cityid":@"101010100"},
+                      @{@"cityname":@"西安",@"cityid":@"101110101"},
+                      @{@"cityname":@"上海",@"cityid":@"101020100"},
+                      @{@"cityname":@"南京",@"cityid":@"101190101"},
+                      nil];
+    
+    resultArray = array;
+    return resultArray;
+}
+#pragma mark - setup searchbar
+- (void)setUpSearchBar{
+    UISearchBar *searchBar = [[UISearchBar alloc]initWithFrame:CGRectMake(0, 0, _widtheOfView, 44)];
+    
+    _displayer = [[UISearchController alloc]initWithSearchResultsController:searchBar];
+}
 #pragma mark - TableView Data Source
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     
     return [self.listData count];
 }
 
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *simpleTableIdentifier = @"SimpleTableIdentifier";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
-    if(cell == nil){
-        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
-    }
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier forIndexPath:indexPath];
 
-    cell.textLabel.text = [[self.listData objectAtIndex:indexPath.row] objectForKey:@"city"];
+    cell.textLabel.text = [[self.listData objectAtIndex:indexPath.row] objectForKey:@"cityname"];
     return cell;
 }
 
-
 #pragma mark - TableView onTouch
 
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *idForCity = [[self.listData objectAtIndex:indexPath.row] objectForKey:@"cityid"];
     NSLog(@"%@",idForCity);
@@ -70,14 +106,20 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+#pragma mark - UISearchResultUpdating
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController
+{
+    NSString *searchText = searchController.searchBar.text;
+    NSMutableArray *searchResult = [[NSMutableArray alloc]init];
+    NSDictionary *temp = [[NSDictionary alloc]init];
+    for (temp in _listData){
+        NSRange range = [[temp objectForKey:@"cityname"] rangeOfString:searchController.searchBar.text];
+        if(range.length > 0){
+            [searchResult addObject:temp];
+        }
+    }
+    _mySearchResult.searchResults = searchResult;
+    [_mySearchResult.tableView reloadData];
 }
-*/
 
 @end

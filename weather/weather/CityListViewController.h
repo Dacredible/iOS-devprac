@@ -12,7 +12,7 @@
 -(void)citySelect:(NSDictionary *)dic;
 @end
 
-@interface CityListViewController : UIViewController <UITableViewDataSource,UITableViewDelegate>
+@interface CityListViewController : UIViewController <UITableViewDataSource,UITableViewDelegate,UISearchBarDelegate,UISearchResultsUpdating>
 
 @property (nonatomic,strong) NSArray *listData;
 @property (nonatomic,assign) id<CitySelectDelegate>cityDelegate;

@@ -53,19 +53,24 @@ static NSString *simpleTableIdentifier = @"SimpleTableIdentifier";
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"pop" object:nil];
+}
+
 #pragma mark - getData
 
 - (NSArray *)getDataArray
 {
-    NSMutableArray *resultArray;
+//    NSMutableArray *resultArray;
     NSArray *array = [[NSArray alloc]initWithObjects:@{@"cityname":@"北京",@"cityid":@"101010100"},
                       @{@"cityname":@"西安",@"cityid":@"101110101"},
                       @{@"cityname":@"上海",@"cityid":@"101020100"},
                       @{@"cityname":@"南京",@"cityid":@"101190101"},
                       nil];
     
-    resultArray = array;
-    return resultArray;
+    return array;
 }
 #pragma mark - setup searchbar
 - (void)setUpSearchBar{
@@ -113,7 +118,7 @@ static NSString *simpleTableIdentifier = @"SimpleTableIdentifier";
     NSMutableArray *searchResult = [[NSMutableArray alloc]init];
     NSDictionary *temp = [[NSDictionary alloc]init];
     for (temp in _listData){
-        NSRange range = [[temp objectForKey:@"cityname"] rangeOfString:searchController.searchBar.text];
+        NSRange range = [[temp objectForKey:@"cityname"] rangeOfString:searchText];
         if(range.length > 0){
             [searchResult addObject:temp];
         }

@@ -10,5 +10,6 @@
 
 @interface WeatherViewController : UIViewController
 
+@property (nonatomic,strong) NSArray *cityInfoArray;
 @end
 

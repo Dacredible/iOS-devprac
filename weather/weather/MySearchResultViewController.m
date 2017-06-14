@@ -8,6 +8,7 @@
 
 #import "MySearchResultViewController.h"
 #import "CityListViewController.h"
+
 @interface MySearchResultViewController ()
 
 @end

@@ -1,4 +1,4 @@
-//
+    //
 //  WeatherViewController.m
 //  weather
 //
@@ -8,12 +8,11 @@
 
 #import "WeatherViewController.h"
 #import "CityListViewController.h"
+#import "MJRefresh.h"
 
-@interface WeatherViewController ()<CitySelectDelegate>
+@interface WeatherViewController ()<CitySelectDelegate,UITableViewDataSource>
 
-@property (strong,nonatomic) IBOutlet UILabel *cityLable;
-@property (strong,nonatomic) IBOutlet UILabel *weatherLable;
-@property (strong, nonatomic) IBOutlet UILabel *cityTemp;
+@property (strong,nonatomic) UITableView *weatherInfoTable;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *showList;
 @property (strong, nonatomic) NSDictionary *weatherInfoDic;
 
@@ -25,26 +24,66 @@
     [super viewDidLoad];
     
     // Do any additional setup after loading the view, typically from a nib.
-
+    _weatherInfoTable = [[UITableView alloc]initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    _weatherInfoTable.dataSource = self;
+    [self.view addSubview:_weatherInfoTable];
+    _weatherInfoTable.tableFooterView = [UIView new];
+    [self update:@"101020100"];
     
 }
--(void)viewDidAppear:(BOOL)animated
+
+- (void)update:(NSString *)cityID{
+    self.weatherInfoTable.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        //Call this Block When enter the refresh status automatically
+            [self callJson:cityID];
+    }];
+    // Enter the refresh status immediately
+    [self.weatherInfoTable.header beginRefreshing];
+}
+- (void)viewDidAppear:(BOOL)animated
 {
    
-    UIButton *refreshBtn = [[UIButton alloc] initWithFrame: CGRectMake(100, 300, 100, 100)];
-
-    [refreshBtn setTitle:@"Refresh" forState:UIControlStateNormal];
-    [refreshBtn setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-    [self.view addSubview:refreshBtn];
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btn setTitle:@"citylist" forState:UIControlStateNormal];
-
     [_showList setAction:@selector(pushMethod)];
     [_showList setTarget:self];
 
-    [refreshBtn addTarget:self action:@selector(click) forControlEvents:UIControlEventTouchUpInside];
 }
 
+
+#pragma mark - TableView Data Source
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (!_weatherInfoDic) {
+        return 0;
+    }
+    return 3;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *simpleTableIdentifier = @"SimpleTableIdentifier";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+    if(cell == nil){
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
+    }
+
+    switch (indexPath.row) {
+        case 0:
+            cell.textLabel.text = [NSString stringWithFormat:@"%@%@",@"城市",[_weatherInfoDic objectForKey:@"city"]];
+            break;
+        case 1:
+            cell.textLabel.text = [@"天气" stringByAppendingString:[_weatherInfoDic objectForKey:@"weather"]];
+            break;
+        case 2:
+            cell.textLabel.text = [@"温度" stringByAppendingString:[_weatherInfoDic objectForKey:@"temp1"]];
+            break;
+        default:
+            break;
+    }
+    
+    return cell;
+}
 - (void)pushMethod
 {
     
@@ -59,12 +98,9 @@
     [self.navigationController pushViewController:CityListViewController animated:YES];
 }
 
--(void)click
+-(void)callJson:(NSString *)cityID
 {
-    [self callJson:@"http://www.weather.com.cn/data/cityinfo/101020100.html"];
-}
--(void)callJson:(NSString *)urlString
-{
+    NSString *urlString = [[NSString alloc]initWithFormat:(@"http://www.weather.com.cn/data/cityinfo/%@.html"),cityID];
     NSError *error;
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
@@ -74,17 +110,14 @@
     
     NSDictionary *weatherDic = [NSJSONSerialization JSONObjectWithData:response options:NSJSONReadingMutableLeaves error:&error];
     _weatherInfoDic = [[NSDictionary alloc]initWithDictionary: [weatherDic objectForKey:@"weatherinfo"]];
-    self.cityLable.text = [_weatherInfoDic objectForKey:@"city"];
-    self.weatherLable.text = [_weatherInfoDic objectForKey:@"weather"];
-    self.cityTemp.text = [_weatherInfoDic objectForKey:@"temp1"];
-
+    [_weatherInfoTable reloadData];
+    [_weatherInfoTable.mj_header endRefreshing];
 }
 
 -(void)citySelect:(NSDictionary *)dic
 {
     NSString *cityID = [dic objectForKey:@"cityid"];
-    NSString *cityInfo = [[NSString alloc]initWithFormat:@"http://www.weather.com.cn/data/cityinfo/%@.html",cityID];
-    [self callJson:cityInfo];
+    [self update:cityID];
     NSLog(@"dic = %@",dic);
 }
 

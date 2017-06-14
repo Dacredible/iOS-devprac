@@ -27,6 +27,7 @@
     _weatherInfoTable = [[UITableView alloc]initWithFrame:self.view.bounds style:UITableViewStylePlain];
     _weatherInfoTable.dataSource = self;
     [self.view addSubview:_weatherInfoTable];
+    _weatherInfoTable.separatorStyle = UITableViewCellSeparatorStyleNone;
     _weatherInfoTable.tableFooterView = [UIView new];
     [self update:@"101020100"];
     
@@ -38,7 +39,7 @@
             [self callJson:cityID];
     }];
     // Enter the refresh status immediately
-    [self.weatherInfoTable.header beginRefreshing];
+    [self.weatherInfoTable.mj_header beginRefreshing];
 }
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -67,16 +68,19 @@
     if(cell == nil){
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:simpleTableIdentifier];
     }
-
-    switch (indexPath.row) {
+    if(!_weatherInfoDic){
+        cell.textLabel.text = @"请刷新";
+    }
+    else
+        switch (indexPath.row) {
         case 0:
-            cell.textLabel.text = [NSString stringWithFormat:@"%@%@",@"城市",[_weatherInfoDic objectForKey:@"city"]];
+            cell.textLabel.text = [NSString stringWithFormat:@"%@%@",@"城市：  ",[_weatherInfoDic objectForKey:@"city"]];
             break;
         case 1:
-            cell.textLabel.text = [@"天气" stringByAppendingString:[_weatherInfoDic objectForKey:@"weather"]];
+            cell.textLabel.text = [NSString stringWithFormat:@"%@%@",@"天气：  ",[_weatherInfoDic objectForKey:@"weather"]];
             break;
         case 2:
-            cell.textLabel.text = [@"温度" stringByAppendingString:[_weatherInfoDic objectForKey:@"temp1"]];
+            cell.textLabel.text = [NSString stringWithFormat:@"%@%@",@"温度：  ",[_weatherInfoDic objectForKey:@"temp1"]];
             break;
         default:
             break;

@@ -55,7 +55,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (!_weatherInfoDic) {
-        return 0;
+        return 1;
     }
     return 3;
 }
@@ -111,7 +111,11 @@
     
     NSData *response = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
     
-    
+    if(!response){
+        [_weatherInfoTable reloadData];
+        [_weatherInfoTable.mj_header endRefreshing];
+        return;
+    }
     NSDictionary *weatherDic = [NSJSONSerialization JSONObjectWithData:response options:NSJSONReadingMutableLeaves error:&error];
     _weatherInfoDic = [[NSDictionary alloc]initWithDictionary: [weatherDic objectForKey:@"weatherinfo"]];
     [_weatherInfoTable reloadData];
